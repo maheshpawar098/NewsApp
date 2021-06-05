@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, ScrollView, StatusBar, View} from 'react-native';
 import api from 'service';
-import {Card} from 'components';
-
+import {Card, Header} from 'components';
+import colors from 'utils/constant/colors';
 
 type Props = {};
 
@@ -15,7 +15,7 @@ const Home: React.FC<Props> = () => {
 
   const getStories = async () => {
     const {data, status} = await api.getStories();
-    setStories(data);
+    setStories(data.slice(0, 20));
   };
 
   const renderItem = ({item}: {item: number}) => {
@@ -23,14 +23,18 @@ const Home: React.FC<Props> = () => {
   };
 
   return (
-    <>
-      <FlatList
-        data={stories}
-        keyExtractor={item => item + ''}
-        renderItem={renderItem}
-        initialNumToRender={20}
-      />
-    </>
+    <View style={{backgroundColor: colors.background, paddingBottom: 40}}>
+      <StatusBar backgroundColor={colors.background} barStyle="dark-content" />
+      <ScrollView>
+        <Header />
+        <FlatList
+          data={stories}
+          keyExtractor={item => item + ''}
+          renderItem={renderItem}
+          initialNumToRender={20}
+        />
+      </ScrollView>
+    </View>
   );
 };
 

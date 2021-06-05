@@ -1,6 +1,11 @@
 const getDateFormat = (secounds: number) => {
   const date = new Date(secounds);
+  // const startTime = new Date(); 
+  // const endTime = new Date(secounds);
+  // const difference = startTime.getTime() - endTime.getTime(); // This will give difference in milliseconds
+  // const resultInMinutes = Math.round(difference / 60000);
 
+  // return `${resultInMinutes} ago`
   let hours: any = date.getHours();
   let min: any = date.getMinutes();
   let amPm = 'am';
