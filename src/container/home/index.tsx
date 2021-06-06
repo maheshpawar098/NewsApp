@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -6,6 +6,8 @@ import {
   StatusBar,
   View,
   FlatList,
+  TextInput,
+  Keyboard,
 } from 'react-native';
 import {Card, Empty, Header, HeaderLoader, NewsHeader} from 'components';
 import colors from 'utils/constant/colors';
@@ -25,30 +27,74 @@ type Props = {
   route: HomeScreenRouteProp;
 };
 
+const initail: any = null;
+
 const Home: React.FC<Props> = ({route}) => {
+  const searchRef = useRef<TextInput>(initail);
+  const scrollRef = useRef<ScrollView>(initail);
   const {isFavorite} = route.params;
-  const {favorites, stories: newsStories, isLoading} = useStore();
+  const {
+    favorites,
+    stories: newsStories,
+    isLoading,
+    setStories,
+    newNewsCount,
+  } = useStore();
   const [showTitle, setShowTitle] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState('');
 
-  const stories = isFavorite ? favorites : newsStories;
-
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const {y} = e.nativeEvent.contentOffset;
-    setShowTitle(y > 50);
-    setShowSearch(y > 115);
+    const isShowTitle = y > 50;
+    const isShowSearchIcon = y > 115;
+
+    if (isShowTitle !== showTitle) {
+      setShowTitle(isShowTitle);
+    }
+    if (isShowSearchIcon !== showSearch) {
+      setShowSearch(isShowSearchIcon);
+    }
   };
 
-  const renderCardItem = useCallback(({item}: {item: TopStory}) => {
-    return <Card story={item} key={item.id} />;
-  }, []);
+  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const {y} = e.nativeEvent.contentOffset;
+    const scrollIndex = Math.round((y - 150) / 100);
+
+    if (!isFavorite && newNewsCount && scrollIndex >= 0) {
+
+      setStories(prev => {
+        const newsStories = prev.map((story, index) => {
+          if (!story.read && index <= scrollIndex) {
+            return {...story, read: true};
+          }
+          return story;
+        });
+
+        return [...newsStories];
+      });
+    }
+  };
+
+  const onSearchIconPress = () => {
+    scrollRef.current?.scrollTo({y: 0});
+    searchRef.current?.focus();
+    console.log(searchRef);
+  };
+
+  const renderCardItem = (item: TopStory) => {
+    return <Card isFavorite={isFavorite} story={item} key={item.id} />;
+  }
 
   const renderLoaderItem = useCallback((_: any, i: number) => {
     return <NewsLoader key={i} />;
   }, []);
 
   const headerTitle = isFavorite ? 'Favorites' : 'News';
+
+  const stories = isFavorite
+    ? filterData(favorites, search)
+    : filterData(newsStories, search);
 
   return (
     <View style={{backgroundColor: colors.background, flex: 1}}>
@@ -57,36 +103,33 @@ const Home: React.FC<Props> = ({route}) => {
         title={headerTitle}
         showTitle={showTitle}
         showSearch={showSearch}
+        onSearchPress={onSearchIconPress}
       />
-      {isLoading ? (
-        <>
-          <HeaderLoader />
-          {Array.from(Array(6)).map(renderLoaderItem)}
-        </>
-      ) : (
-        <>
-          <FlatList
-            data={filterData(stories, search)}
-            onScroll={onScroll}
-            refreshing={true}
-            onRefresh={() => {}}
-            ListHeaderComponent={() => (
-              <NewsHeader
-                title={headerTitle}
-                setSearch={setSearch}
-                search={search}
-              />
-            )}
-            renderItem={renderCardItem}
-            ListEmptyComponent={
+      <ScrollView
+        ref={scrollRef}
+        onMomentumScrollEnd={onScrollEnd}
+        onScroll={onScroll}>
+        <NewsHeader
+          isFavorite={isFavorite}
+          title={headerTitle}
+          ref={searchRef}
+          setSearch={setSearch}
+          search={search}
+        />
+        {isLoading ? (
+          <>{Array.from(Array(6)).map(renderLoaderItem)}</>
+        ) : (
+          <>
+            {stories.length === 0 ? (
               <Empty
                 message={isFavorite ? 'Add news to favorites' : 'No news found'}
               />
-            }
-            keyExtractor={item => item.id + ''}
-          />
-        </>
-      )}
+            ) : (
+              <>{stories.map(renderCardItem)}</>
+            )}
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 };

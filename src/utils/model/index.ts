@@ -16,6 +16,7 @@ type TopStory = {
   title: string;
   type: string;
   url: string;
+  read: boolean;
 };
 
 export type {Request, TopStory};

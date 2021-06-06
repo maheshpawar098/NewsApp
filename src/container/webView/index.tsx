@@ -13,6 +13,7 @@ import fonts from 'utils/constant/fonts';
 import {TopStory} from 'utils/model';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {WebView as RNWebView} from 'react-native-webview';
+import {Container} from 'components';
 
 const {height: HEIGHT} = Dimensions.get('window');
 
@@ -36,19 +37,14 @@ const WebView: React.FC<Props> = ({route}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={{padding: 10, paddingHorizontal: 20}}
-        onPress={navigation.goBack}>
-        <Icon size={28} name="arrow-left" />
-      </TouchableOpacity>
+    <Container title={story.title}>
       <RNWebView onLoadStart={endLoading} source={{uri: story.url}} />
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={'large'} color={colors.primary} />
         </View>
       ) : null}
-    </View>
+    </Container>
   );
 };
 

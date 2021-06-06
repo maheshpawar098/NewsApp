@@ -1,10 +1,6 @@
 import {useTheme} from 'hooks';
-import React, {} from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import React from 'react';
+import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import fonts from 'utils/constant/fonts';
 import {dateFormat} from 'utils/date';
@@ -13,12 +9,14 @@ import {useNavigation} from '@react-navigation/native';
 import {getHostName} from 'utils';
 import colors from 'utils/constant/colors';
 import {IconTitle} from 'components';
+import Shimmer from 'react-native-shimmer';
 
 type Props = {
   story: TopStory;
+  isFavorite: boolean;
 };
 
-const Card: React.FC<Props> = ({story}) => {
+const Card: React.FC<Props> = ({story, isFavorite}) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
@@ -34,8 +32,10 @@ const Card: React.FC<Props> = ({story}) => {
   return (
     <View style={[styles.container, {backgroundColor: colors.background}]}>
       <View style={styles.titleContainer}>
-        <TouchableOpacity onPress={onDetailsPress}>
-          <Text style={styles.title}>{story.title}</Text>
+        <TouchableOpacity style={styles.labelTitleContainer} onPress={onDetailsPress}>
+          <Text style={styles.title}>
+            {story.title} <NewLabel isRead={story.read || isFavorite } />
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -84,6 +84,23 @@ const Card: React.FC<Props> = ({story}) => {
   );
 };
 
+type NewLabelProps = {
+  isRead: boolean
+}
+
+const NewLabel: React.FC<NewLabelProps> = ({isRead}) => {
+
+  if(isRead) return null
+
+  return (
+    <Shimmer style={styles.labelContainer} tilt={45} opacity={1} animationOpacity={0.5}>
+      <View >
+        <Text style={styles.new}>New</Text>
+      </View>
+    </Shimmer>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
@@ -94,14 +111,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fonts.medium,
-    fontSize: 18,
+    fontSize: 16,
+    justifyContent: 'center'
   },
-
+  new: {
+    color: colors.primary,
+    bottom: -5
+  },
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     // paddingVertical: 10,
+  },
+  labelContainer: {
+  },
+  labelTitleContainer:{
+    
   },
 
   titleContainer: {

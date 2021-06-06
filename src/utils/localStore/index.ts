@@ -29,6 +29,9 @@ const removeItem = async (key: string) => {
 
 const keys = {
   FAVORITES: 'FAVORITES',
+  SCORE: 'SCORE',
+  LAST_READ_NEWS_TIME: "LAST_READ_NEWS_TIME",
+  STORIES: 'STORIES',
 };
 
 const localStorage = {

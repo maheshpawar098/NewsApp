@@ -9,9 +9,10 @@ type Props = {
   showTitle: boolean;
   showSearch: boolean;
   title: string;
+  onSearchPress : () => void;
 };
 
-const Header: React.FC<Props> = ({showTitle, showSearch, title}) => {
+const Header: React.FC<Props> = ({showTitle, showSearch, title, onSearchPress}) => {
   const navigation = useNavigation<any>();
 
   return (
@@ -23,7 +24,7 @@ const Header: React.FC<Props> = ({showTitle, showSearch, title}) => {
         <View style={styles.empty} />
       )}
       {showSearch ? (
-        <Icon onPress={navigation.toggleDrawer} size={28} name="magnify" />
+        <Icon onPress={onSearchPress} size={28} name="magnify" />
       ) : (
         <View style={styles.empty} />
       )}

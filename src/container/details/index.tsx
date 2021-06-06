@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from 'utils/constant/colors';
 import fonts from 'utils/constant/fonts';
-import {IconTitle} from 'components';
+import {Container, IconTitle} from 'components';
 import {getHostName} from 'utils';
 import {dateFormat} from 'utils/date';
 import {useStore} from 'hooks';
@@ -47,84 +47,81 @@ const Details: React.FC<Props> = ({route}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={navigation.goBack}>
-        <Icon size={28} name="arrow-left" />
-      </TouchableOpacity>
-      <View style={styles.urlContainer}>
-        <TouchableOpacity onPress={onUrlPress}>
-          <Text style={styles.url}>{getHostName(story.url)}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>{story.title}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <IconTitle
-          textStyle={{
-            textTransform: 'capitalize',
-            color: colors.primary,
-            fontFamily: fonts.medium,
-          }}
+    <Container>
+      <View style={styles.container}>
+        <View style={styles.urlContainer}>
+          <TouchableOpacity onPress={onUrlPress}>
+            <Text style={styles.url}>{getHostName(story.url)}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{story.title}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <IconTitle
+            textStyle={{
+              textTransform: 'capitalize',
+              color: colors.primary,
+              fontFamily: fonts.medium,
+            }}
+            style={{
+              opacity: 1,
+            }}
+            name={story.type}
+          />
+          <IconTitle name={dateFormat(story.time)} />
+        </View>
+        <View style={styles.infoContainer}>
+          <IconTitle
+            name={story.score}
+            iconSize={24}
+            iconColor={colors.red}
+            iconName={'thumb-up-outline'}
+          />
+          <IconTitle
+            iconName={'account-outline'}
+            iconSize={24}
+            name={story.by}
+            iconColor={colors.secondary}
+          />
+        </View>
+        <View
           style={{
-            opacity: 1,
-          }}
-          name={story.type}
-        />
-        <IconTitle name={dateFormat(story.time)} />
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 8,
+          }}>
+          <IconTitle
+            iconName={isFavorite ? 'star' : 'star-outline'}
+            iconSize={28}
+            iconColor={colors.primary}
+            onPress={onFavoritesPress}
+            name={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          />
+          <Ionicons
+            style={[styles.icon, {color: colors.text}]}
+            name={'share-social-outline'}
+            size={24}
+          />
+        </View>
+        <View style={styles.border} />
+        {/* <View>
+          <Text style={styles.comments}>Comments</Text>
+        </View> */}
       </View>
-      <View style={styles.infoContainer}>
-        <IconTitle
-          name={story.score}
-          iconSize={24}
-          iconColor={colors.red}
-          iconName={'thumb-up-outline'}
-        />
-        <IconTitle
-          iconName={'account-outline'}
-          iconSize={24}
-          name={story.by}
-          iconColor={colors.secondary}
-        />
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingVertical: 8,
-        }}>
-        <IconTitle
-          iconName={isFavorite ? 'star' : 'star-outline'}
-          iconSize={28}
-          iconColor={colors.primary}
-          onPress={onFavoritesPress}
-          name={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-        />
-        <Ionicons
-          style={[styles.icon, {color: colors.text}]}
-          name={'share-social-outline'}
-          size={24}
-        />
-      </View>
-      <View style={styles.border} />
-      <View>
-        <Text style={styles.comments}>Comments</Text>
-      </View>
-    </View>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.background,
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
   titleContainer: {
     paddingVertical: 5,
-    minHeight: 120,
+    minHeight: 100,
   },
   title: {
     fontSize: 20,

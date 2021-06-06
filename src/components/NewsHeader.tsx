@@ -1,4 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
+import {useStore} from 'hooks';
 import React from 'react';
 import {
   StyleSheet,
@@ -15,52 +16,75 @@ type Props = {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   search: string;
   title: string;
+  isFavorite: boolean;
 };
 
-const NewsHeader: React.FC<Props> = ({setSearch, search, title = 'News'}) => {
-  const navigation = useNavigation<any>();
+const NewsHeader = React.forwardRef<TextInput, Props>(
+  ({setSearch, search, title = 'News', isFavorite}, ref) => {
+    const navigation = useNavigation<any>();
+    const {selectedSource, newsScore, newNewsCount} = useStore();
 
-  const onClearPress = () => {
-    setSearch('');
-  };
+    let badgeCount = 0;
+    if (selectedSource !== 'all') {
+      badgeCount++;
+    }
 
-  const onFilterPress = () => {
-    navigation.navigate('Filter');
-  };
+    if (newsScore !== -1) {
+      badgeCount++;
+    }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>{title}</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <Icon style={styles.searchIcon} size={28} name="magnify" />
-        <TextInput
-          placeholderTextColor={colors.border}
-          placeholder="Search by score, title, source"
-          style={styles.textInput}
-          onChangeText={setSearch}
-          value={search}
-        />
-        {search.length === 0 ? (
-          <Icon
-            onPress={onFilterPress}
-            style={styles.searchIcon}
-            size={28}
-            name="filter"
+    const onClearPress = () => {
+      setSearch('');
+    };
+
+    const onFilterPress = () => {
+      navigation.navigate('Filter');
+    };
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{title}</Text>
+          {newNewsCount && !isFavorite ? <Text style={styles.subTitle}>{`${newNewsCount} new stories` }</Text> : null}
+        </View>
+        <View style={styles.inputContainer}>
+          <Icon style={styles.searchIcon} size={28} name="magnify" />
+          <TextInput
+            placeholderTextColor={colors.border}
+            placeholder="Search by score, title, source"
+            style={styles.textInput}
+            onChangeText={setSearch}
+            value={search}
+            ref={ref}
           />
-        ) : (
-          <Icon
-            onPress={onClearPress}
-            style={styles.searchIcon}
-            size={28}
-            name="close"
-          />
-        )}
+          {search.length === 0 && !isFavorite ? (
+            <TouchableOpacity onPress={onFilterPress}>
+              <Icon
+                style={styles.searchIcon}
+                size={28}
+                color={badgeCount !== 0 ? colors.primary : colors.secondary}
+                name="filter"
+              />
+              {badgeCount !== 0 ? (
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badge}>{badgeCount}</Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+          ) : null}
+          {search.length !== 0 ? (
+            <Icon
+              onPress={onClearPress}
+              style={styles.searchIcon}
+              size={28}
+              name="close"
+            />
+          ) : null}
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -68,7 +92,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontFamily: fonts.medium,
     color: colors.primary,
   },
@@ -83,7 +107,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    backgroundColor: 'whitesmoke',
+    backgroundColor: colors.whitesmoke,
     alignItems: 'center',
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -91,8 +115,29 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   searchIcon: {
-    opacity: 0.4,
+    opacity: 0.6,
   },
+  badgeContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 2,
+    backgroundColor: colors.blue_chipe,
+    borderRadius: 7.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 15,
+    height: 15,
+  },
+  badge: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    color: colors.primary,
+  },
+  subTitle:{
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.secondary,
+  }
 });
 
 export default NewsHeader;
