@@ -1,5 +1,6 @@
 const colors = {
   primary: '#1779ba',
+  secondary: '#767676',
   background: 'white',
   card: 'rgb(255, 255, 255)',
   text: 'rgb(28, 28, 30)',
