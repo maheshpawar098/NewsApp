@@ -15,9 +15,9 @@ type Props = {
   maxScore: number;
   setNewsScore: React.Dispatch<React.SetStateAction<number>>;
   newsScore: number;
-  source: Map<string, number>;
-  setSelectedSource: React.Dispatch<React.SetStateAction<string>>;
-  selectedSource: string;
+  authors: Map<string, number>;
+  setSelectedAuthor: React.Dispatch<React.SetStateAction<string>>;
+  selectedAuthor: string;
   newNewsCount: number;
 };
 
@@ -32,8 +32,8 @@ const ContextProvider: React.FC<{}> = ({children}) => {
   const [maxScore, setMaxScore] = useState(0);
   const [newNews, setNewNews] = useState(0);
   const [newsScore, setNewsScore] = useState(-1);
-  const [source, setSource] = useState<Map<string, number>>(new Map());
-  const [selectedSource, setSelectedSource] = useState('all');
+  const [authors, setAuthors] = useState<Map<string, number>>(new Map());
+  const [selectedAuthor, setSelectedAuthor] = useState('all');
 
   useEffect(() => {
     getLocalData();
@@ -72,7 +72,7 @@ const ContextProvider: React.FC<{}> = ({children}) => {
 
     const stories: TopStory[] = await localStorage.getItem(localStorage.keys.STORIES)|| []
     let maxScore = 0;
-    const sources = new Map<string, number>();
+    const authors = new Map<string, number>();
 
     const newStories = await Promise.all(
       data.slice(0, 20).map(async (storyId, index) => {
@@ -83,12 +83,12 @@ const ContextProvider: React.FC<{}> = ({children}) => {
             story = {...data, read: false};
           }
           if (story) {
-            const source = getHostName(story.url);
-            if (sources.has(source)) {
-              const count = sources.get(source) || 0;
-              sources.set(source, count + 1);
-            } else if (source) {
-              sources.set(source, 1);
+            const author = story.by;
+            if (authors.has(author)) {
+              const count = authors.get(author) || 0;
+              authors.set(author, count + 1);
+            } else if (author) {
+              authors.set(author, 1);
             }
             if (maxScore < story.score) {
               maxScore = story.score;
@@ -103,10 +103,10 @@ const ContextProvider: React.FC<{}> = ({children}) => {
       }),
     );
     const filterStories: any[] = newStories.filter(item => !!item);
-    sources.set('all', filterStories.length);
+    authors.set('all', filterStories.length);
 
     setMaxScore(maxScore);
-    setSource(sources);
+    setAuthors(authors);
     setStories(filterStories);
     setIsLoading(false);
     timer();
@@ -143,14 +143,14 @@ const ContextProvider: React.FC<{}> = ({children}) => {
         favorites,
         addToFavorites,
         removeFromFavorites,
-        stories: filterData(stories, newsScore, selectedSource),
+        stories: filterData(stories, newsScore, selectedAuthor),
         isLoading,
         maxScore,
         newsScore,
         setNewsScore,
-        source,
-        selectedSource,
-        setSelectedSource,
+        authors,
+        selectedAuthor,
+        setSelectedAuthor,
         setStories,
         newNewsCount: newNews
       }}>

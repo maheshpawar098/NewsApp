@@ -22,10 +22,10 @@ type Props = {
 const NewsHeader = React.forwardRef<TextInput, Props>(
   ({setSearch, search, title = 'News', isFavorite}, ref) => {
     const navigation = useNavigation<any>();
-    const {selectedSource, newsScore, newNewsCount} = useStore();
+    const {selectedAuthor, newsScore, newNewsCount} = useStore();
 
     let badgeCount = 0;
-    if (selectedSource !== 'all') {
+    if (selectedAuthor !== 'all') {
       badgeCount++;
     }
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     flex: 1,
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
   },
   inputContainer: {
     flexDirection: 'row',

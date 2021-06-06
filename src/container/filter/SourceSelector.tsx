@@ -17,7 +17,7 @@ const {width: WIDTH} = Dimensions.get('window');
 type Props = {};
 
 const SourceSelector: React.FC<Props> = () => {
-  const {source} = useStore();
+  const {authors} = useStore();
 
   const renderItem: ListRenderItem<[string, number]> = ({item}) => {
     return <Chip title={item[0]} count={item[1]} />;
@@ -26,12 +26,12 @@ const SourceSelector: React.FC<Props> = () => {
   return (
     <View style={styles.container}>
       <View style={styles.labelContainer}>
-      <Text style={styles.label}>Select news source</Text>
+        <Text style={styles.label}>Select news author</Text>
       </View>
       <FlatList
-        data={Array.from(source)}
+        data={Array.from(authors)}
         renderItem={renderItem}
-        numColumns={2}
+        numColumns={3}
         keyExtractor={item => item[0]}
       />
     </View>
@@ -44,17 +44,17 @@ type ChipProps = {
 };
 
 const Chip: React.FC<ChipProps> = ({title, count}) => {
-  const {selectedSource, setSelectedSource} = useStore();
+  const {selectedAuthor, setSelectedAuthor} = useStore();
 
-  const isSelected = title === selectedSource;
+  const isSelected = title === selectedAuthor;
 
   const onPress = () => {
-    setSelectedSource(title);
-  }
+    setSelectedAuthor(title);
+  };
 
   return (
     <TouchableOpacity
-    onPress={onPress}
+      onPress={onPress}
       style={[
         styles.chipContainer,
         {backgroundColor: isSelected ? colors.blue_chipe : colors.whitesmoke},
@@ -62,7 +62,10 @@ const Chip: React.FC<ChipProps> = ({title, count}) => {
       <Text
         numberOfLines={1}
         ellipsizeMode="tail"
-        style={[styles.chipTitle, {color: isSelected ? colors.primary : colors.text}]}>{`${count} ${title}`}</Text>
+        style={[
+          styles.chipTitle,
+          {color: isSelected ? colors.primary : colors.text},
+        ]}>{`${count} ${title}`}</Text>
     </TouchableOpacity>
   );
 };
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 16,
     flexGrow: 1,
-    opacity: 0.8
+    opacity: 0.8,
   },
   countContainer: {
     alignItems: 'center',
@@ -104,8 +107,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   labelContainer: {
-    paddingVertical: 10
-  }
+    paddingVertical: 10,
+  },
 });
 
 export default SourceSelector;
