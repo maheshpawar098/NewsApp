@@ -10,8 +10,11 @@ import {
 const Stack = createStackNavigator();
 
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import colors from 'utils/constant/colors';
+import fonts from 'utils/constant/fonts';
+import {DrawerContent} from 'components';
 
-const Drawer = createDrawerNavigator();
+const AppDrawer = createDrawerNavigator();
 
 type RootStackParamList = {
   HomeContainer: {isFavorite: boolean};
@@ -40,14 +43,28 @@ const HomeContainer: React.FC<Props> = ({route}) => {
 const AppContainer: React.FC<{}> = () => {
   return (
     <NavigationContainer>
-      <Drawer.Navigator>
-        <Drawer.Screen initialParams={{isFavorite: false}} name="Home" component={HomeContainer} />
-        <Drawer.Screen
+      <AppDrawer.Navigator
+        drawerContent={props => <DrawerContent {...props} />}
+        drawerContentOptions={{
+          activeTintColor: colors.primary,
+          activeBackgroundColor: colors.blue_chipe,
+          labelStyle: {
+            fontFamily: fonts.medium,
+            fontSize: 16,
+          },
+          itemStyle: {marginVertical: 5},
+        }}>
+        <AppDrawer.Screen
+          initialParams={{isFavorite: false}}
+          name="Home"
+          component={HomeContainer}
+        />
+        <AppDrawer.Screen
           initialParams={{isFavorite: true}}
           name="Favorites"
           component={HomeContainer}
         />
-      </Drawer.Navigator>
+      </AppDrawer.Navigator>
     </NavigationContainer>
   );
 };
