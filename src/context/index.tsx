@@ -1,10 +1,14 @@
 import React, {useEffect, useState} from 'react';
+import api from 'service';
 import localStorage from 'utils/localStore';
+import {TopStory} from 'utils/model';
 
 type Props = {
-  bookmarks: number[];
-  addToBookmarks: (bookmark: number) => void
-  removeFromBookmarks: (bookmark: number) => void
+  favorites: TopStory[];
+  addToFavorites: (story: TopStory) => void;
+  removeFromFavorites: (story: TopStory) => void;
+  stories: TopStory[];
+  isLoading: boolean;
 };
 
 const INITIAL_VALUE: any = null;
@@ -12,38 +16,61 @@ const INITIAL_VALUE: any = null;
 const appContext = React.createContext<Props>(INITIAL_VALUE);
 
 const ContextProvider: React.FC<{}> = ({children}) => {
-  const [bookmarks, setBookmarks] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<TopStory[]>([]);
+  const [stories, setStories] = useState<TopStory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getLocalBookmarks();
+    getLocalFavorites();
+    getStories();
   }, []);
 
-  const getLocalBookmarks = async () => {
-    const bookmarks =
-      (await localStorage.getItem(localStorage.keys.BOOKMARK)) || [];
+  const getStories = async () => {
+    const {data}: {data: number[]} = await api.getStories();
 
-    setBookmarks(bookmarks);
+    const stories = await Promise.all(
+      data.slice(0, 20).map(async storyId => {
+        const {data} = await api.getStoryById(storyId);
+        return data;
+      }),
+    );
+
+    setStories(stories);
+    setIsLoading(false);
   };
 
-  const addToBookmarks = async (bookmark: number) => {
-    const newBookmarks = [...bookmarks, bookmark];
-    setBookmarks(newBookmarks);
-    await localStorage.setItem(localStorage.keys.BOOKMARK, newBookmarks);
+  const getLocalFavorites = async () => {
+    const favorites =  await localStorage.getItem(localStorage.keys.FAVORITES) || [];
+    setFavorites(favorites);
   };
-  const removeFromBookmarks = async (bookmark: number) => {
-    const index = bookmarks.findIndex(val =>  val === bookmark)
-    bookmarks.splice(index, 1);
-    // const newBookmarks = [...bookmarks, bookmark];
-    setBookmarks(bookmarks);
-    await localStorage.setItem(localStorage.keys.BOOKMARK, bookmarks);
+
+  const addToFavorites = async (story: TopStory) => {
+    const newFavorite = [...favorites, story];
+    setFavorites(newFavorite);
+    await localStorage.setItem(localStorage.keys.FAVORITES, newFavorite);
   };
+
+  const removeFromFavorites = async (story: TopStory) => {
+    const index = favorites.findIndex(val => val.id === story.id);
+    const newFavorite = favorites.splice(index, 1);
+    console.log(newFavorite, index);
+
+    setFavorites([...favorites]);
+
+    localStorage.setItem(localStorage.keys.FAVORITES, [...favorites]);
+
+  };
+  console.log(favorites);
+
 
   return (
     <appContext.Provider
       value={{
-        bookmarks,
-        addToBookmarks,
-        removeFromBookmarks
+        favorites,
+        addToFavorites,
+        removeFromFavorites,
+        stories,
+        isLoading,
       }}>
       {children}
     </appContext.Provider>

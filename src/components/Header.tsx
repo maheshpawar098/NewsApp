@@ -8,15 +8,20 @@ import fonts from 'utils/constant/fonts';
 type Props = {
   showTitle: boolean;
   showSearch: boolean;
+  title: string;
 };
 
-const Header: React.FC<Props> = ({showTitle, showSearch}) => {
+const Header: React.FC<Props> = ({showTitle, showSearch, title}) => {
   const navigation = useNavigation<any>();
 
   return (
     <View style={styles.iconContainer}>
       <Icon onPress={navigation.toggleDrawer} size={28} name="menu" />
-      {showTitle ? <Text style={styles.title}>News</Text> : <View style={styles.empty} />}
+      {showTitle ? (
+        <Text style={styles.title}>{title}</Text>
+      ) : (
+        <View style={styles.empty} />
+      )}
       {showSearch ? (
         <Icon onPress={navigation.toggleDrawer} size={28} name="magnify" />
       ) : (
@@ -36,11 +41,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: fonts.medium,
-    color: colors.primary
+    color: colors.primary,
   },
   empty: {
-      padding: 15
-  }
+    padding: 15,
+  },
 });
 
 export default Header;

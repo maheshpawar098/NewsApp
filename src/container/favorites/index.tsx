@@ -4,7 +4,7 @@ import React from 'react'
 type Props = {}
 
 const Favorites: React.FC<Props> = () => {
-    const {bookmarks} = useStore()
+    const {} = useStore()
     return (
         <>
             

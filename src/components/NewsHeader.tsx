@@ -14,9 +14,10 @@ import fonts from 'utils/constant/fonts';
 type Props = {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   search: string;
+  title: string;
 };
 
-const NewsHeader: React.FC<Props> = ({setSearch, search}) => {
+const NewsHeader: React.FC<Props> = ({setSearch, search, title = 'News'}) => {
   const navigation = useNavigation<any>();
 
   const onClearPress = () => {
@@ -30,7 +31,7 @@ const NewsHeader: React.FC<Props> = ({setSearch, search}) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>News</Text>
+        <Text style={styles.title}>{title}</Text>
       </View>
       <View style={styles.inputContainer}>
         <Icon style={styles.searchIcon} size={28} name="magnify" />
@@ -64,15 +65,15 @@ const NewsHeader: React.FC<Props> = ({setSearch, search}) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 15,
-    paddingBottom: 15
+    paddingBottom: 15,
   },
   title: {
     fontSize: 32,
     fontFamily: fonts.medium,
-    color: colors.primary
+    color: colors.primary,
   },
   titleContainer: {
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   textInput: {
     paddingHorizontal: 10,
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     opacity: 0.8,
-    marginVertical: 5
+    marginVertical: 5,
   },
   searchIcon: {
     opacity: 0.4,

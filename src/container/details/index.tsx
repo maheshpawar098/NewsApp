@@ -23,27 +23,27 @@ type Props = {
 
 const Details: React.FC<Props> = ({route}) => {
   const {story} = route.params;
-  const {bookmarks, addToBookmarks, removeFromBookmarks} = useStore();
+  const {favorites, addToFavorites, removeFromFavorites} = useStore();
   const navigation = useNavigation();
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isFavorite, setIsFavisFavorite] = useState(false);
 
   useEffect(() => {
-    const bookmarkIndex = bookmarks.findIndex(val => val === story.id);
+    const favoriteIndex = favorites.findIndex(val => val.id === story.id);
 
-    setIsBookmarked(bookmarkIndex !== -1);
+    setIsFavisFavorite(favoriteIndex !== -1);
   }, []);
 
   const onUrlPress = () => {
     navigation.navigate('WebView', {story});
   };
 
-  const onBookmarkPress = () => {
-    if (isBookmarked) {
-      removeFromBookmarks(story.id);
+  const onFavoritesPress = () => {
+    if (isFavorite) {
+      removeFromFavorites(story);
     } else {
-      addToBookmarks(story.id);
+      addToFavorites(story);
     }
-    setIsBookmarked(!isBookmarked);
+    setIsFavisFavorite(!isFavorite);
   };
 
   return (
@@ -95,11 +95,12 @@ const Details: React.FC<Props> = ({route}) => {
           justifyContent: 'space-between',
           paddingVertical: 8,
         }}>
-        <Ionicons
-          onPress={onBookmarkPress}
-          style={styles.icon}
-          name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
-          size={24}
+        <IconTitle
+          iconName={isFavorite ? 'star' : 'star-outline'}
+          iconSize={28}
+          iconColor={colors.primary}
+          onPress={onFavoritesPress}
+          name={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         />
         <Ionicons
           style={[styles.icon, {color: colors.text}]}
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     paddingVertical: 5,
-    minHeight: 150,
+    minHeight: 120,
   },
   title: {
     fontSize: 20,
@@ -145,7 +146,8 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   urlContainer: {
-    paddingVertical: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   url: {
     fontSize: 16,

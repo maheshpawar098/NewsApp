@@ -1,51 +1,38 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
   StatusBar,
   View,
+  FlatList,
 } from 'react-native';
-import api from 'service';
-import {Card, Header, NewsHeader} from 'components';
+import {Card, Empty, Header, HeaderLoader, NewsHeader} from 'components';
 import colors from 'utils/constant/colors';
 import {TopStory} from 'utils/model';
 import NewsLoader from 'components/NewsLoader';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
+import {useStore} from 'hooks';
+import filterData from 'container/home/helper';
 
-type Props = {};
+type RootStackParamList = {
+  Home: {isFavorite: boolean};
+};
 
-const Home: React.FC<Props> = () => {
-  const [stories, setStories] = useState<TopStory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
+
+type Props = {
+  route: HomeScreenRouteProp;
+};
+
+const Home: React.FC<Props> = ({route}) => {
+  const {isFavorite} = route.params;
+  const {favorites, stories: newsStories, isLoading} = useStore();
   const [showTitle, setShowTitle] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState('');
-  const navigation = useNavigation<any>();
 
-  useEffect(() => {
-    getStories();
-  }, []);
-
-  const getStories = async () => {
-    const {data}: {data: number[]} = await api.getStories();
-    // const stories: TopStory[] = [];
-
-    // data.slice(0, 20).map(async storyId => {
-    //   const {data} = await api.getStoryById(storyId);
-    //   return data
-    // });
-
-    const stories = await Promise.all(
-      data.slice(0, 20).map(async storyId => {
-        const {data} = await api.getStoryById(storyId);
-        return data;
-      }),
-    );
-
-    setStories(stories);
-    setIsLoading(false);
-  };
+  const stories = isFavorite ? favorites : newsStories;
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const {y} = e.nativeEvent.contentOffset;
@@ -53,53 +40,55 @@ const Home: React.FC<Props> = () => {
     setShowSearch(y > 115);
   };
 
-  const renderCardItem = useCallback(
-    (item: TopStory) => {
-      return <Card story={item} key={item.id} />;
-    },
-    [stories],
-  );
+  const renderCardItem = useCallback(({item}: {item: TopStory}) => {
+    return <Card story={item} key={item.id} />;
+  }, []);
 
   const renderLoaderItem = useCallback((_: any, i: number) => {
     return <NewsLoader key={i} />;
   }, []);
-  
+
+  const headerTitle = isFavorite ? 'Favorites' : 'News';
 
   return (
-    <View style={{backgroundColor: colors.background, paddingBottom: 60}}>
+    <View style={{backgroundColor: colors.background, flex: 1}}>
       <StatusBar backgroundColor={colors.background} barStyle="dark-content" />
-      <Header showTitle={showTitle} showSearch={showSearch} />
-      <ScrollView onScroll={onScroll}>
-        <NewsHeader setSearch={setSearch} search={search} />
-        {isLoading ? (
-          <>{Array.from(Array(8)).map(renderLoaderItem)}</>
-        ) : (
-          <>{filterData(stories, search).map(renderCardItem)}</>
-        )}
-      </ScrollView>
+      <Header
+        title={headerTitle}
+        showTitle={showTitle}
+        showSearch={showSearch}
+      />
+      {isLoading ? (
+        <>
+          <HeaderLoader />
+          {Array.from(Array(6)).map(renderLoaderItem)}
+        </>
+      ) : (
+        <>
+          <FlatList
+            data={filterData(stories, search)}
+            onScroll={onScroll}
+            refreshing={true}
+            onRefresh={() => {}}
+            ListHeaderComponent={() => (
+              <NewsHeader
+                title={headerTitle}
+                setSearch={setSearch}
+                search={search}
+              />
+            )}
+            renderItem={renderCardItem}
+            ListEmptyComponent={
+              <Empty
+                message={isFavorite ? 'Add news to favorites' : 'No news found'}
+              />
+            }
+            keyExtractor={item => item.id + ''}
+          />
+        </>
+      )}
     </View>
   );
-};
-
-const filterData = (data: TopStory[], search: string) => {
-  if (search === '') {
-    return data;
-  }
-
-  return data.filter(item => {
-    try {
-      if (
-        `${item.score}` === search ||
-        item.title.toLowerCase().includes(search.toLowerCase()) ||
-        item.by.toLowerCase().includes(search.toLowerCase())
-      )
-        return true;
-    } catch (error) {
-      return false;
-    }
-
-    return false;
-  });
 };
 
 export default Home;

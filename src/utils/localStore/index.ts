@@ -28,7 +28,7 @@ const removeItem = async (key: string) => {
 };
 
 const keys = {
-  BOOKMARK: 'BOOKMARK',
+  FAVORITES: 'FAVORITES',
 };
 
 const localStorage = {
