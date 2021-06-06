@@ -1,6 +1,6 @@
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Share} from 'react-native';
 import {TopStory} from 'utils/model';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -44,6 +44,17 @@ const Details: React.FC<Props> = ({route}) => {
       addToFavorites(story);
     }
     setIsFavisFavorite(!isFavorite);
+  };
+
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message:
+          `Welcome to news app, \n\n${story.title}\n\n${story.url}`,
+      });
+     
+    } catch (error) {
+    }
   };
 
   return (
@@ -102,6 +113,7 @@ const Details: React.FC<Props> = ({route}) => {
           <Ionicons
             style={[styles.icon, {color: colors.text}]}
             name={'share-social-outline'}
+            onPress={onShare}
             size={24}
           />
         </View>
